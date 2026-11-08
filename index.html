@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemeChaos: Streamer Zone</title>
+    <script src="https://tailwindcss.com"></script>
+</head>
+<body class="bg-gray-950 text-white font-sans overflow-x-hidden">
+
+    <!-- MAIN APP APP -->
+    <div class="max-w-md mx-auto p-4 min-h-screen flex flex-col justify-between" id="main-app">
+        
+        <!-- HEADER & SETTINGS BUTTON -->
+        <div class="flex justify-between items-center bg-gray-900 p-3 rounded-xl border border-purple-500/30">
+            <div>
+                <h1 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-yellow-500">MEMECHAOS</h1>
+                <p id="app-mode" class="text-xs text-red-400 font-bold">📢 FREE VERSION (ADS ACTIVE)</p>
+            </div>
+            <button onclick="toggleSettings()" class="bg-gray-800 p-2 rounded-lg text-sm border border-gray-700">⚙️ Settings</button>
+        </div>
+
+        <!-- SETTINGS PANEL (HIDDEN BY DEFAULT) -->
+        <div id="settings-panel" class="bg-gray-900 p-4 rounded-xl border border-purple-500/50 my-2 hidden space-y-3">
+            <h3 class="text-sm font-bold text-yellow-400">⚙️ पेमेंट सेटिंग्स (Earning Setup)</h3>
+            <div>
+                <label class="text-xs text-gray-400">आपकी PayPal.me लिंक:</label>
+                <input type="text" id="paypal-input" value="https://paypal.me/deepagentai" class="w-full bg-black p-2 rounded border border-gray-700 text-xs mt-1 text-cyan-400">
+            </div>
+            <div>
+                <label class="text-xs text-gray-400">पापा की UPI ID (Bank of Baroda):</label>
+                <input type="text" id="upi-input" placeholder="example@oksbi" class="w-full bg-black p-2 rounded border border-gray-700 text-xs mt-1 text-green-400">
+            </div>
+            <button onclick="saveSettings()" class="w-full py-2 bg-yellow-500 text-black font-bold rounded text-xs">Save Payment Methods</button>
+        </div>
+
+        <!-- 10S CHAOS WHEEL -->
+        <div class="my-4 flex flex-col items-center">
+            <div id="wheel" class="w-52 h-52 rounded-full border-4 border-dashed border-pink-500 flex items-center justify-center text-center font-black text-lg text-yellow-300 p-4 bg-black transition-transform duration-1000">
+                SPIN TO ROAST
+            </div>
+            <div id="timer" class="text-5xl font-black text-red-500 mt-4 hidden">10</div>
+            
+            <button onclick="spinWheel()" class="mt-6 w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl font-black text-base shadow-lg uppercase tracking-wider active:scale-95 transition">
+                💥 START 10s CHAOS
+            </button>
+        </div>
+
+        <!-- USER MONETIZATION HUB -->
+        <div class="bg-gray-900 p-4 rounded-xl space-y-3 border border-gray-800">
+            <p class="text-center text-xs text-gray-400">स्ट्रीमर को म्यूट करने या विज्ञापन हटाने के लिए पे करें</p>
+            <div class="grid grid-cols-2 gap-2">
+                <button onclick="triggerGlobalPayment(500, 'Coins')" class="py-3 bg-emerald-500 text-black font-black rounded-lg text-xs uppercase">
+                    🪙 PAY VIA UPI (₹500)
+                </button>
+                <button onclick="triggerGlobalPayment(1000, 'Pass')" class="py-3 bg-blue-600 text-white font-black rounded-lg text-xs uppercase">
+                    🅿️ PAY VIA PAYPAL ($12)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MANUAL VERIFICATION GATEWAY -->
+    <div id="verify-gateway" class="fixed inset-0 bg-black/95 flex flex-col justify-center items-center z-50 hidden p-6">
+        <div class="bg-gray-900 p-6 rounded-2xl border-2 border-yellow-500 max-w-sm text-center space-y-4">
+            <h2 class="text-xl font-black text-yellow-400">🔒 Payment Verification</h2>
+            <p class="text-xs text-gray-400">यदि आपने PayPal/UPI ऐप में पेमेंट पूरा कर दिया है, तो नीचे अपनी ट्रांजेक्शन ID या यूज़रनेम डालकर अनलॉक करें:</p>
+            <input type="text" id="txn-id" placeholder="Enter Transaction ID / Reference No." class="w-full bg-black p-3 rounded border border-gray-700 text-center text-sm">
+            <button onclick="verifyAndGrantAccess()" class="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-600 font-bold rounded-xl text-sm">
+                ✅ UNLOCK ACCESS NOW
+            </button>
+            <button onclick="closeVerifyGateway()" class="text-xs text-gray-500 underline">Cancel</button>
+        </div>
+    </div>
+
+    <!-- AI MEME ATTACK POPUP -->
+    <div id="meme-popup" class="fixed inset-0 bg-black/95 flex flex-col justify-center items-center z-40 hidden">
+        <h1 id="meme-text" class="text-3xl font-black text-red-500 text-center px-4 animate-bounce"></h1>
+        <p class="text-yellow-400 text-xs mt-2">🔊 AUDIO BLAST: ARE BHOOTNI KE!</p>
+    </div>
+
+    <!-- AD TRAP POPUP -->
+    <div id="ad-popup" class="fixed inset-0 bg-red-950/95 flex flex-col justify-center items-center z-40 hidden p-6">
+        <div class="bg-black p-6 rounded-2xl border-4 border-yellow-500 max-w-sm text-center space-y-3">
+            <span class="bg-yellow-500 text-black text-xs font-bold px-2 py-0.5 rounded">STREAMER AD</span>
+            <h2 class="text-xl font-black text-white">🔥 विज्ञापन हटाने के लिए PAID VERSION लें!</h2>
+            <div class="w-full h-20 bg-gray-800 flex items-center justify-center font-bold text-gray-600 text-xs">[LOUD MEME AD RUNNING]</div>
+            <p id="ad-timer" class="text-xs font-bold text-red-500">Ad closes in 5s...</p>
+        </div>
+    </div>
+
+    <script>
+        let PAYPAL_URL = "https://paypal.me/deepagentai";
+        let UPI_ID = ""; 
+        let isPaidUser = false;
+        
+        const memeDatabase = ["ABE BHOOTNI KE!", "KHATAM, BYE BYE, TATA!", "ARE MARO MUJHE MARO!", "KYA GUNDA BANEGA RE TU!"];
+        const challenges = ["BATAK (DUCK) CHAT", "MEME FACE CHALLENGE", "PAPAD ROASTING", "ALIEN DANCE LIVE"];
+
+        function toggleSettings() {
+            const panel = document.getElementById('settings-panel');
+            panel.classList.toggle('hidden');
+        }
+
+        function saveSettings() {
+            PAYPAL_URL = document.getElementById('paypal-input').value;
+            UPI_ID = document.getElementById('upi-input').value;
+            alert("✅ दोनों पेमेंट मेथड सफलतापूर्वक सेव हो गए हैं!");
+            toggleSettings();
+        }
+
+        function spinWheel() {
+            const wheel = document.getElementById('wheel');
+            wheel.style.transform = "rotate(" + (Math.random() * 360 + 1440) + "deg)";
+            setTimeout(() => {
+                wheel.innerText = challenges[Math.floor(Math.random() * challenges.length)];
+                startTimer();
+            }, 1000);
+        }
+
+        function startTimer() {
+            let timeLeft = 10;
+            const timerEl = document.getElementById('timer');
+            timerEl.classList.remove('hidden');
+            timerEl.innerText = timeLeft;
+
+            let interval = setInterval(() => {
+                timeLeft--;
+                timerEl.innerText = timeLeft;
+                if(timeLeft <= 0) {
+                    clearInterval(interval);
+                    timerEl.classList.add('hidden');
+                    triggerMemeAttack();
+                }
+            }, 1000);
+        }
+
+        function triggerMemeAttack() {
+            const popup = document.getElementById('meme-popup');
+            document.getElementById('meme-text').innerText = memeDatabase[Math.floor(Math.random() * memeDatabase.length)];
+            popup.classList.remove('hidden');
+
+            setTimeout(() => {
+                popup.classList.add('hidden');
+                if (!isPaidUser) { showAd(); }
+            }, 3000);
+        }
+
+        function showAd() {
+            const adPopup = document.getElementById('ad-popup');
+            const adTimer = document.getElementById('ad-timer');
+            adPopup.classList.remove('hidden');
+
+            let adTimeLeft = 5;
+            let adInterval = setInterval(() => {
+                adTimeLeft--;
+                adTimer.innerText = `Ad closes in ${adTimeLeft}s...`;
+                if(adTimeLeft <= 0) {
+                    clearInterval(adInterval);
+                    adPopup.classList.add('hidden');
+                }
+            }, 1000);
+        }
+
+        // संयुक्त गेटवे: सीधे पेमेंट ऐप्स या पेपाल खोलता है
+        function triggerGlobalPayment(amount, type) {
+            if (type === 'Pass') {
+                // सीधे आपकी दी हुई पेपाल लिंक खोलेगा
+                window.open(`${PAYPAL_URL}/${amount / 40}`, '_blank'); 
+            } else {
+                if (!UPI_ID) {
+                    alert("❌ कृपया पहले सेटिंग्स में जाकर पापा की UPI ID दर्ज करें!");
+                    toggleSettings();
+                    return;
+                }
+                const upiUrl = `upi://pay?pa=${UPI_ID}&pn=MemeChaos&tn=MemeChaosCoins&am=${amount}&cu=INR`;
+                window.location.href = upiUrl;
+            }
+
+            // पेमेंट विंडो खोलने के ठीक बाद वेरिफिकेशन पॉपअप दिखाएं
+            setTimeout(() => {
+                document.getElementById('verify-gateway').classList.remove('hidden');
+            }, 2000);
+        }
+
+        function closeVerifyGateway() {
+            document.getElementById('verify-gateway').classList.add('hidden');
+        }
+
+        function verifyAndGrantAccess() {
+            const id = document.getElementById('txn-id').value;
+            if (id.trim().length < 4) {
+                alert("❌ कृपया सही ट्रांजेक्शन आईडी या संदर्भ नंबर दर्ज करें!");
+                return;
+            }
+            
+            isPaidUser = true;
+            document.getElementById('app-mode').innerText = "👑 PAID PASS ACTIVE (NO ADS)";
+            document.getElementById('app-mode').className = "text-xs text-green-400 font-bold";
+            closeVerifyGateway();
